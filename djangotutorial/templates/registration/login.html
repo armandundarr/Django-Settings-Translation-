@@ -1,0 +1,42 @@
+{% extends "polls/base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Giriş Yap</h1>
+    <p class="subtitle">Oy kullanmak veya yorum yapmak için hesabınıza giriş yapın.</p>
+</div>
+
+<div class="auth-container">
+    {% if form.errors %}
+    <div class="error-message">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="feather feather-alert-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <p>Kullanıcı adı veya şifre yanlış. Lütfen tekrar deneyin.</p>
+    </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'login' %}" class="vote-form glass-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_username">Kullanıcı Adı:</label>
+            <input type="text" name="username" id="id_username" class="form-control" required autofocus>
+        </div>
+        <div class="form-group">
+            <label for="id_password">Şifre:</label>
+            <input type="password" name="password" id="id_password" class="form-control" required>
+        </div>
+        
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                Giriş Yap
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            </button>
+        </div>
+
+        <input type="hidden" name="next" value="{{ next|default:'/polls/' }}">
+    </form>
+    
+    <div class="auth-footer">
+        <p>Hesabınız yok mu? <a href="{% url 'polls:register' %}">Hemen Kayıt Olun!</a></p>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "polls/base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Anketlere Katıl</h1>
+    <p class="subtitle">İlginizi çeken bir anket bulun ve oyunuzu kullanın.</p>
+</div>
+
+<div class="categories-filter">
+    <a href="{% url 'polls:index' %}" class="category-pill {% if not selected_category %}active{% endif %}">Tümü</a>
+    {% for cat in categories %}
+    <a href="{% url 'polls:index' %}?category={{ cat.id }}" class="category-pill {% if selected_category == cat.id|stringformat:'s' %}active{% endif %}" style="--cat-color: {{ cat.color }};">
+        {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+
+{% if latest_question_list %}
+    <ul class="poll-list">
+    {% for question in latest_question_list %}
+        <li class="poll-item">
+            <a href="{% url 'polls:detail' question.id %}" class="poll-link">
+                <div class="poll-content">
+                    <div class="poll-infos">
+                        {% if question.category %}
+                            <span class="poll-badge" style="background-color: {{ question.category.color }}33; color: {{ question.category.color }}; border: 1px solid {{ question.category.color }}66;">
+                                {{ question.category.name }}
+                            </span>
+                        {% endif %}
+                        <h3>{{ question.question_text }}</h3>
+                        {% if question.end_date %}
+                            <p class="poll-timer" data-endtime="{{ question.end_date|date:'c' }}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                <span class="time-left">Hesaplanıyor...</span>
+                            </p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="poll-action">
+                        <span class="action-text">Katıl</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </div>
+                </div>
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="feather feather-inbox"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"></polyline><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path></svg>
+        <p>Şu anda aktif anket bulunmuyor.</p>
+    </div>
+{% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const timers = document.querySelectorAll('.poll-timer');
+    
+    function updateTimers() {
+        const now = new Date().getTime();
+        timers.forEach(timer => {
+            const endTimeStr = timer.getAttribute('data-endtime');
+            if(!endTimeStr) return;
+            const endTime = new Date(endTimeStr).getTime();
+            const distance = endTime - now;
+            const textSpan = timer.querySelector('.time-left');
+            const actionText = timer.closest('.poll-item').querySelector('.action-text');
+            
+            if (distance < 0) {
+                textSpan.innerHTML = "Süresi Doldu";
+                timer.classList.add('expired');
+                if(actionText) actionText.innerHTML = "Sonuçları Gör";
+                return;
+            }
+            
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+            
+            let timeString = "";
+            if(days > 0) timeString += `${days}g `;
+            if(hours > 0 || days > 0) timeString += `${hours}sa `;
+            timeString += `${minutes}dk ${seconds}sn`;
+            
+            textSpan.innerHTML = "Bitiş: " + timeString;
+        });
+    }
+    
+    updateTimers();
+    setInterval(updateTimers, 1000);
+});
+</script>
+{% endblock %}

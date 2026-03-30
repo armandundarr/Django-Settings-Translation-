@@ -1,0 +1,90 @@
+{% extends "polls/base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Oylama Alanı</h1>
+</div>
+
+{% if not question.is_active %}
+    <div class="locked-state glass-form">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <h2>Bu anket oylamaya kapanmıştır.</h2>
+        <p>Süresi dolduğu için yeni oylar kabul edilmemektedir. Sonuç sayfasına giderek mevcut durumu inceleyebilirsiniz.</p>
+        <a href="{% url 'polls:results' question.id %}" class="btn btn-primary" style="margin-top: 1rem;">Sonuçları Gör</a>
+    </div>
+{% else %}
+    <form action="{% url 'polls:vote' question.id %}" method="post" class="vote-form glass-form">
+        {% csrf_token %}
+        <fieldset class="form-fieldset">
+            <legend class="form-legend">
+                <h2>{{ question.question_text }}</h2>
+                {% if question.end_date %}
+                <span class="poll-badge" style="background-color: var(--bg-secondary); border: 1px solid var(--border-color); display: inline-block; margin-top: 5px;">
+                    Kapanış: {{ question.end_date|date:"d M Y, H:i" }}
+                </span>
+                {% endif %}
+            </legend>
+            
+            {% if error_message %}
+                <div class="error-message">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="feather feather-alert-circle"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <p><strong>{{ error_message }}</strong></p>
+                </div>
+            {% endif %}
+            
+            <div class="choices-container">
+            {% for choice in question.choice_set.all %}
+                <label for="choice{{ forloop.counter }}" class="choice-label">
+                    <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" class="choice-input">
+                    <span class="custom-radio"></span>
+                    <span class="choice-text">{{ choice.choice_text }}</span>
+                </label>
+            {% endfor %}
+            </div>
+        </fieldset>
+        
+        <div class="form-actions">
+            <a href="{% url 'polls:index' %}" class="btn btn-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary">
+                Oy Ver
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="feather feather-check"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </button>
+        </div>
+    </form>
+{% endif %}
+
+<div class="comments-section glass-form" style="margin-top: 3rem;">
+    <h3>Tartışma & Yorumlar ({{ question.comments.count }})</h3>
+    
+    <div class="comments-list">
+        {% for comment in question.comments.all %}
+        <div class="comment-item">
+            <div class="comment-avatar">
+                {{ comment.user.username|make_list|first|upper }}
+            </div>
+            <div class="comment-content">
+                <div class="comment-header">
+                    <strong>{{ comment.user.username }}</strong>
+                    <span class="comment-date">{{ comment.created_at|date:"d M, H:i" }}</span>
+                </div>
+                <p>{{ comment.content }}</p>
+            </div>
+        </div>
+        {% empty %}
+        <p class="empty-state">Henüz yorum yapılmamış. İlk yorumu sen yap!</p>
+        {% endfor %}
+    </div>
+
+    {% if user.is_authenticated %}
+        <form action="{% url 'polls:add_comment' question.id %}" method="post" class="comment-form" style="margin-top: 1.5rem;">
+            {% csrf_token %}
+            <textarea name="content" class="form-control" rows="3" placeholder="Bu anket hakkında düşünceni paylaş..." required></textarea>
+            <button type="submit" class="btn btn-primary" style="margin-top: 0.5rem;">Gönder</button>
+        </form>
+    {% else %}
+        <div class="login-prompt">
+            <p>Yorum yapabilmek için <a href="{% url 'login' %}">giriş yapmalısınız</a>.</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

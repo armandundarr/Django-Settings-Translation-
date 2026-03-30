@@ -1,0 +1,103 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Polls Application</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="{% static 'polls/style.css' %}">
+</head>
+<body>
+
+<header class="app-header">
+    <div class="header-container">
+        <a href="{% url 'polls:index' %}" class="logo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+            <span>Django Polls</span>
+        </a>
+        
+        <div class="header-right">
+            <div class="auth-links">
+                {% if user.is_authenticated %}
+                    <span class="user-greeting">Merhaba, {{ user.username }}</span>
+                    <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-logout" title="Çıkış Yap">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" class="feather"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="auth-link">Giriş</a>
+                    <a href="{% url 'polls:register' %}" class="btn-primary auth-btn">Kayıt Ol</a>
+                {% endif %}
+            </div>
+
+            <div class="theme-switch-wrapper">
+                <div class="select-wrapper">
+                    <select id="themeSelector" title="Tema">
+                        <option value="light">Light</option>
+                        <option value="dark">Dark</option>
+                        <option value="dracula">Dracula</option>
+                        <option value="nord">Nord</option>
+                        <option value="solarized-light">Solarized Light</option>
+                        <option value="solarized-dark">Solarized Dark</option>
+                        <option value="synthwave">Synthwave</option>
+                        <option value="cyberpunk">Cyberpunk</option>
+                    </select>
+                    <div class="select-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="app-main">
+    <div class="glass-container">
+        {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                    <div class="toast-message {{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        
+        {% block content %}
+        {% endblock %}
+    </div>
+</main>
+
+<footer class="app-footer">
+    <p>&copy; 2026 Django Polls. Built with style.</p>
+</footer>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const themeSelector = document.getElementById("themeSelector");
+        
+        // Check for saved theme preference, otherwise use 'light'
+        const currentTheme = localStorage.getItem("theme") ? localStorage.getItem("theme") : "light";
+        
+        // Apply the saved theme on load
+        document.documentElement.setAttribute("data-theme", currentTheme);
+        themeSelector.value = currentTheme;
+        
+        // Listen for changes and set the new theme
+        themeSelector.addEventListener("change", function(e) {
+            const newTheme = e.target.value;
+            document.documentElement.setAttribute("data-theme", newTheme);
+            localStorage.setItem("theme", newTheme);
+        });
+    });
+</script>
+
+</body>
+</html>
