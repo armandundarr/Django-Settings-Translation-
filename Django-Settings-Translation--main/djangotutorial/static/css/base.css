@@ -1,0 +1,13 @@
+/* Base CSS for AnketPro */
+:root {
+    --transition-speed: 0.3s;
+}
+
+body {
+    transition: background var(--transition-speed), color var(--transition-speed);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+}

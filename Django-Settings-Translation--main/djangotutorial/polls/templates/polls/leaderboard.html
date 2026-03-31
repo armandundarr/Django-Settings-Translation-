@@ -1,0 +1,63 @@
+{% extends "polls/base.html" %}
+
+{% block title %}Liderlik Tablosu - MAKECHOICE{% endblock %}
+
+{% block content %}
+<div class="leaderboard-page animate-fade" style="max-width: 900px; margin: 0 auto;">
+    <div style="text-align: center; margin-bottom: 4rem;">
+        <h1 style="font-size: 3rem; font-weight: 800; letter-spacing: -0.05em; margin-bottom: 1rem;">🏆 Topluluk Liderleri</h1>
+        <p style="color: var(--text-muted); font-size: 1.125rem; font-weight: 600;">En aktif seçmenler, en popüler anket yazarları ve rütbe sahipleri.</p>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background: var(--primary-light);">
+                    <th style="padding: 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--primary);">Sıra</th>
+                    <th style="padding: 1.5rem; text-align: left; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--primary);">Kullanıcı</th>
+                    <th style="padding: 1.5rem; text-align: center; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--primary);">Rozetler</th>
+                    <th style="padding: 1.5rem; text-align: right; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--primary);">Toplam Puan</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in top_profiles %}
+                <tr style="border-bottom: 1px solid var(--border); transition: var(--transition);" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1.5rem;">
+                        {% if forloop.counter == 1 %}
+                            <span style="background: #fbbf24; color: #000; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">1</span>
+                        {% elif forloop.counter == 2 %}
+                            <span style="background: #94a3b8; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">2</span>
+                        {% elif forloop.counter == 3 %}
+                            <span style="background: #92400e; color: #fff; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.875rem;">3</span>
+                        {% else %}
+                            <span style="color: var(--text-muted); font-weight: 700; padding-left: 0.5rem;">{{ forloop.counter }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 1.5rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.125rem;">
+                                {{ profile.user.username|make_list|first|upper }}
+                            </div>
+                            <div>
+                                <p style="font-weight: 800; color: var(--text-main); margin: 0;">{{ profile.user.username }}</p>
+                                <span style="font-size: 0.7rem; font-weight: 700; color: var(--primary); text-transform: uppercase;">{{ profile.rank }}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="padding: 1.5rem; text-align: center;">
+                        <div style="display: flex; gap: 0.5rem; justify-content: center; font-size: 1.25rem;">
+                            {% for user_badge in profile.user.badges.all %}
+                                <span title="{{ user_badge.badge.name }}: {{ user_badge.badge.description }}" style="cursor: help;">{{ user_badge.badge.icon }}</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td style="padding: 1.5rem; text-align: right;">
+                        <span style="font-size: 1.25rem; font-weight: 800; color: var(--primary);">{{ profile.points }}</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
